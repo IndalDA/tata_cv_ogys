@@ -14,7 +14,7 @@ from database_models import create_database_engine, get_session, User
 from report import process_files
 from log import ADMIN_EMAILS, show_user_log
 
-st.set_page_config(page_title="Honda 2w", layout="wide") 
+st.set_page_config(page_title="Tata cv/pv", layout="wide") 
 from database_models import log_event
 ENGINE = create_database_engine()
 
@@ -29,12 +29,12 @@ def log_user_event(action, details=None, level="INFO"):
         level=level
     )
 
-st.title("🚗 Honda 2w Order Generator")
+st.title("🚗 Tata cv/pv Order Generator")
 st.markdown("""
-📊 Generate comprehensive reports from Honda 2w :
-- OEM Reports
+📊 Generate comprehensive reports from Tata cv/pv :
+- Bo Reports
 - Stock Reports
-- Mrn Report
+- Intransit Report
 """)
 
 # Setting up session state variables
@@ -290,7 +290,7 @@ if st.session_state.get("user_id") or not st.session_state.get("user_id"):
 
     with st.sidebar:
         st.header("⚙ Settings")
-        uploaded_file = st.file_uploader("Upload Honda 2w ZIP file", type=['zip'])
+        uploaded_file = st.file_uploader("Upload Tata cv/pv ZIP file", type=['zip'])
         if uploaded_file is not None:
             st.session_state.uploaded_file = uploaded_file
 
@@ -385,3 +385,4 @@ if st.session_state.get("user_id") or not st.session_state.get("user_id"):
     if st.session_state.uploaded_file is not None:
         if st.session_state.missing_files or st.session_state.period_validation_errors:
             show_validation_issues()
+
