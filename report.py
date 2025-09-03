@@ -261,7 +261,7 @@ def process_files(validation_errors, all_locations, start_date, end_date, total_
             _store_xlsx(po_filename, OEMinvoice)
         if CBO:
           df=pd.concat(CBO,ignore_index=True) 
-          if 'Order Reason' in d.columns:
+          if 'Order Reason' in df.columns:
             cbo = df[(~d['Order Reason'].str.contains('VOR Order CVBU').fillna(False)&(df['Order Reason']!='TOPS')&
             (~df['Order Reason'].str.contains('EXP - Express Order').fillna(False))&(df['Order Reason']!='Prolife Stock Order')
             &((df['Order Item Status'].str.lower()!='cancelled')&(df['Order Item Status'].str.lower()!='cancel')))]
@@ -331,6 +331,7 @@ def process_files(validation_errors, all_locations, start_date, end_date, total_
     )
 
 #    st.success("🎉 Reports generated successfully!")
+
 
 
 
