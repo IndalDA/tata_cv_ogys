@@ -219,18 +219,22 @@ def process_files(validation_errors, all_locations, start_date, end_date, total_
             bo_Df['Days Pending'] = pd.to_numeric(bo_Df['Days Pending'].astype(str).str.replace(',', '', regex=False),errors='coerce')
             bo_Loc = Loc_master.merge(bo_Df,left_on='Code',right_on='Division',how='inner')
             if IStatacv==True:
-                Bo_ex = bo_Loc[bo_Loc['Days Pending']<=45][['Brand_x','Dealer Name','Final Location','Order Number','Order Date','Part No','Pending Qty.','Days Pending']]
+                Bo_ex = bo_Loc[bo_Loc['Days Pending']<=45][['Brand_x','Dealer Name','Final Location','Order Number','Order Date','Part No','Pending Qty.','Days Pending','filename']]
             else:
-                Bo_ex = bo_Loc[bo_Loc['Days Pending']<=35][['Brand_x','Dealer Name','Final Location','Order Number','Order Date','Part No','Pending Qty.','Days Pending']]
+                Bo_ex = bo_Loc[bo_Loc['Days Pending']<=35][['Brand_x','Dealer Name','Final Location','Order Number','Order Date','Part No','Pending Qty.','Days Pending','filename']]
 
-           # Bo_ex = bo_Loc[bo_Loc['Days Pending']<=45][['Brand_x','Dealer Name','Final Location','Order Number','Order Date','Part No','Pending Qty.','Days Pending']]
+           # Bo_ex = bo_Loc[bo_Loc['Days Pending']<=45][['Brand_x','Dealer Name','Final Location','Order Number','Order Date','Part No','Pending Qty.','Days Pending','filename']]
             Bo_ex.rename(columns={'Brand_x':'Brand','Dealer Name':'Dealer','Final Location':'Location','Part No':'Partnumber',
                             'Order Number':'OrderNumber','Pending Qty.':'POQty','Order Date':'OrderDate','Days Pending':'DaysPending'},inplace=True)
-            Bo_up = Bo_ex[['Brand','Dealer','Location','OrderNumber','OrderDate','Partnumber','POQty']]
+            Bo_ex['OEMInvoiceNo']=''
+            Bo_ex['OEMInvoiceDate']=''
+            Bo_ex['OEMInvoiceQty']=''
+            Bo_up = Bo_ex[['Brand','Dealer','Location','OrderNumber','OrderDate','Partnumber','POQty','OEMInvoiceNo','OEMInvoiceDate','OEMInvoiceQty','filename']]
             Bo_up['Partnumber']=Bo_up['Partnumber'].astype(str)
             d  = Bo_ex['OrderDate'].max()
-            Bo_up.drop(Bo_up[((Bo_ex['OrderNumber'].str.startswith('SAP-000'))|(Bo_ex['OrderNumber'].str.startswith('SAP-200')))&
-                        (Bo_ex['OrderDate']<pd.to_datetime(d))].index,inplace=True)
+            if IStatacv==True:          
+              Bo_up.drop(Bo_up[((Bo_ex['OrderNumber'].str.contains('SAP-000'))|(Bo_ex['OrderNumber'].str.contains('SAP-200'))|(Bo_ex['OrderNumber'].str.contains('TOP')))&
+                          (Bo_ex['OrderDate']<pd.to_datetime(d))].index,inplace=True)
             bo_con = Bo_up.copy()
 
         if Intransit:
@@ -241,18 +245,38 @@ def process_files(validation_errors, all_locations, start_date, end_date, total_
             Intransit_Df['Recd Qty']=pd.to_numeric(Intransit_Df['Recd Qty'].astype(str).str.replace(',', '', regex=False),errors='coerce')
             Int_Df = Loc_master.merge(Intransit_Df,left_on='Code',right_on='Division Name',how='inner')
             Int_Df['In_d'] = (pd.to_datetime(Cur).normalize() - Int_Df['Invoice_Date'].dt.normalize()).dt.days
-
-            Int_ex = Int_Df[(Int_Df['In_d']<90)&(Int_Df['Recd Qty']>0)][['Brand_x','Dealer Name','Final Location','Order #','Purchase_Order_Date','Part #','Recd Qty','In_d']]
+            Int_ex = Int_Df[(Int_Df['In_d']<90)&(Int_Df['Recd Qty']>0)][['Brand_x','Dealer Name','Final Location','Order #','Purchase_Order_Date','Part #','Recd Qty',
+                                                                         'In_d','filename']]
+            Int_ex['OEMInvoiceNo']=''
+            Int_ex['OEMInvoiceDate']=''
+            Int_ex['OEMInvoiceQty']=''
             Int_ex.rename(columns={'Brand_x':'Brand','Dealer Name':'Dealer','Final Location':'Location','Part #':'Partnumber',
                             'Order #':'OrderNumber','Recd Qty':'POQty','Purchase_Order_Date':'OrderDate'},inplace=True)
-            Int_up = Int_ex[['Brand','Dealer','Location','OrderNumber','OrderDate','Partnumber','POQty']]
+            Int_up = Int_ex[['Brand','Dealer','Location','OrderNumber','OrderDate','Partnumber','POQty','OEMInvoiceNo','OEMInvoiceDate','OEMInvoiceQty','filename']]
             Int_up['Partnumber']=Int_up['Partnumber'].astype(str)
             Int_con = Int_up.copy()
             OEMinvoice=pd.concat([bo_con,Int_con],ignore_index=True)
             #OEMinvoice.to_excel(f'OEMinvoice_{brand}_{dealer}_{location}2.xlsx',index=False)
             po_filename = f"OEM_{brand}_{dealer}_{location}.xlsx"
             _store_xlsx(po_filename, OEMinvoice)
-
+        if CBO:
+          d=pd.concat(CBO,ignore_index=True) 
+          if 'Order Reason' in d.columns:
+            cbo = d[(~d['Order Reason'].str.contains('VOR Order CVBU').fillna(False)&(d['Order Reason']!='TOPS')&
+            (~d['Order Reason'].str.contains('EXP - Express Order').fillna(False))&(d['Order Reason']!='Prolife Stock Order')
+            &((d['Order Item Status'].str.lower()!='cancelled')&(d['Order Item Status'].str.lower()!='cancel')))]
+          else:
+            cbo =d.copy()
+          cbo_df = Loc_master.merge(cbo,left_on='Code',right_on='Division',how='inner')
+          cbo_f = cbo_df[['Brand','Dealer Name','Final Location','Account Name','Account City','Account code',
+                          'Order Number','Order Date', 'Part No','Pending Qty']]
+          cbo_f.rename(columns={'Dealer Name':'Dealer','Final Location':'Location',
+                      'Account Name':'PartyName','Account code':'PartyCode','Order Number':'OrderNumber',
+                      'Order Date':'OrderDate','Part No':'Partnumber','Pending Qty':'Qty'
+                      },inplace=True)
+          cbo_filename = f"CBO_{brand}_{dealer}_{location}.xlsx"
+          _store_xlsx(cbo_filename, cbo_f)
+        Brand_name =brand            
     if validation_errors:
         st.warning("⚠ Validation issues found:")
         for error in validation_errors:
@@ -264,7 +288,7 @@ def process_files(validation_errors, all_locations, start_date, end_date, total_
     report_types = {
         'OEM':   [k for k in file_bytes.keys() if k.startswith('OEM_')],
         'Stock': [k for k in file_bytes.keys() if k.lower().startswith('stock_')],
-        'Mrn':   [k for k in file_bytes.keys() if k.startswith('Mrn_')],
+        'Cbo':   [k for k in file_bytes.keys() if k.startswith('CBO_')],
         'PO':    [k for k in file_bytes.keys() if k.startswith('Po_')],
     }
 
@@ -302,11 +326,12 @@ def process_files(validation_errors, all_locations, start_date, end_date, total_
     st.download_button(
         label="📦 Download Combined Dealer Reports ZIP",
         data=zip_buffer.getvalue(),
-        file_name="{brand},_Combined_Dealerwise_Reports.zip",
+        file_name="{Brand_name},_Combined_Dealerwise_Reports.zip",
         mime="application/zip"
     )
 
 #    st.success("🎉 Reports generated successfully!")
+
 
 
 
