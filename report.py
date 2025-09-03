@@ -190,7 +190,7 @@ def process_files(validation_errors, all_locations, start_date, end_date, total_
                 df = df[['Brand','Dealer','Location','filename','Order #','Part #','Recd Qty','Division Name','Status','Invoice_Date','Purchase_Order_Date']]
                 Intransit.append(df)
 
-            elif file.lower().startswith("CBO"):
+            elif file.lower().startswith("cbo"):
                 df = read_file(file_path)
                 df['Brand']=brand
                 df['Dealer']=dealer
@@ -331,6 +331,7 @@ def process_files(validation_errors, all_locations, start_date, end_date, total_
     )
 
 #    st.success("🎉 Reports generated successfully!")
+
 
 
 
