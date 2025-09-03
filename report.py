@@ -275,6 +275,7 @@ def process_files(validation_errors, all_locations, start_date, end_date, total_
                       'Account Contact No.':'PartyName','Account code':'PartyCode','Order Number':'OrderNumber',
                       'Order Date':'OrderDate','Part No':'Partnumber','Pending Qty':'Qty'
                       },inplace=True)
+          cbo_f['Partnumber']=cbo_f['Partnumber'].astype(str)
           cbo_filename = f"CBO_{brand}_{dealer}_{location}.xlsx"
           _store_xlsx(cbo_filename, cbo_f)
         Brand_name =brand            
@@ -332,6 +333,7 @@ def process_files(validation_errors, all_locations, start_date, end_date, total_
     )
 
 #    st.success("🎉 Reports generated successfully!")
+
 
 
 
