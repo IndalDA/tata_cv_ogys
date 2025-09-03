@@ -268,6 +268,7 @@ def process_files(validation_errors, all_locations, start_date, end_date, total_
           else:
             cbo =df.copy()
           cbo_df = Loc_master.merge(cbo,left_on='Code',right_on='Division',how='inner')
+          st.write("Columns in cbo_df before selecting:", cbo_df.columns.tolist())
           cbo_f = cbo_df[['Brand','Dealer Name','Final Location','Account Name','Account City','Account code',
                           'Order Number','Order Date', 'Part No','Pending Qty']]
           cbo_f.rename(columns={'Dealer Name':'Dealer','Final Location':'Location',
@@ -331,6 +332,7 @@ def process_files(validation_errors, all_locations, start_date, end_date, total_
     )
 
 #    st.success("🎉 Reports generated successfully!")
+
 
 
 
