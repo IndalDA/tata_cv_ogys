@@ -218,7 +218,12 @@ def process_files(validation_errors, all_locations, start_date, end_date, total_
             bo_Df = pd.concat(bo,ignore_index=True)
             bo_Df['Days Pending'] = pd.to_numeric(bo_Df['Days Pending'].astype(str).str.replace(',', '', regex=False),errors='coerce')
             bo_Loc = Loc_master.merge(bo_Df,left_on='Code',right_on='Division',how='inner')
-            Bo_ex = bo_Loc[bo_Loc['Days Pending']<=45][['Brand_x','Dealer Name','Final Location','Order Number','Order Date','Part No','Pending Qty.','Days Pending']]
+            if IStatacv==True:
+                Bo_ex = bo_Loc[bo_Loc['Days Pending']<=45][['Brand_x','Dealer Name','Final Location','Order Number','Order Date','Part No','Pending Qty.','Days Pending']]
+            else:
+                Bo_ex = bo_Loc[bo_Loc['Days Pending']<=35][['Brand_x','Dealer Name','Final Location','Order Number','Order Date','Part No','Pending Qty.','Days Pending']]
+
+           # Bo_ex = bo_Loc[bo_Loc['Days Pending']<=45][['Brand_x','Dealer Name','Final Location','Order Number','Order Date','Part No','Pending Qty.','Days Pending']]
             Bo_ex.rename(columns={'Brand_x':'Brand','Dealer Name':'Dealer','Final Location':'Location','Part No':'Partnumber',
                             'Order Number':'OrderNumber','Pending Qty.':'POQty','Order Date':'OrderDate','Days Pending':'DaysPending'},inplace=True)
             Bo_up = Bo_ex[['Brand','Dealer','Location','OrderNumber','OrderDate','Partnumber','POQty']]
@@ -302,6 +307,7 @@ def process_files(validation_errors, all_locations, start_date, end_date, total_
     )
 
 #    st.success("🎉 Reports generated successfully!")
+
 
 
 
