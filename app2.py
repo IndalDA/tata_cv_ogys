@@ -290,6 +290,8 @@ if st.session_state.get("user_id") or not st.session_state.get("user_id"):
 
     with st.sidebar:
         st.header("⚙ Settings")
+        IStatacv =st.toggle("Tata cv",
+                          True, key="brand_toggle")
         uploaded_file = st.file_uploader("Upload Tata cv/pv ZIP file", type=['zip'])
         if uploaded_file is not None:
             st.session_state.uploaded_file = uploaded_file
@@ -385,4 +387,5 @@ if st.session_state.get("user_id") or not st.session_state.get("user_id"):
     if st.session_state.uploaded_file is not None:
         if st.session_state.missing_files or st.session_state.period_validation_errors:
             show_validation_issues()
+
 
