@@ -262,11 +262,11 @@ def process_files(validation_errors, all_locations, start_date, end_date, total_
         if CBO:
           df=pd.concat(CBO,ignore_index=True) 
           if 'Order Reason' in df.columns:
-            cbo = df[(~d['Order Reason'].str.contains('VOR Order CVBU').fillna(False)&(df['Order Reason']!='TOPS')&
+            cbo = df[(~df['Order Reason'].str.contains('VOR Order CVBU').fillna(False)&(df['Order Reason']!='TOPS')&
             (~df['Order Reason'].str.contains('EXP - Express Order').fillna(False))&(df['Order Reason']!='Prolife Stock Order')
             &((df['Order Item Status'].str.lower()!='cancelled')&(df['Order Item Status'].str.lower()!='cancel')))]
           else:
-            cbo =d.copy()
+            cbo =df.copy()
           cbo_df = Loc_master.merge(cbo,left_on='Code',right_on='Division',how='inner')
           cbo_f = cbo_df[['Brand','Dealer Name','Final Location','Account Name','Account City','Account code',
                           'Order Number','Order Date', 'Part No','Pending Qty']]
@@ -331,6 +331,7 @@ def process_files(validation_errors, all_locations, start_date, end_date, total_
     )
 
 #    st.success("🎉 Reports generated successfully!")
+
 
 
 
