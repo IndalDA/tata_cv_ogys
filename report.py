@@ -1,5 +1,5 @@
 def process_files(validation_errors, all_locations, start_date, end_date, total_locations,
-                  progress_bar, status_text, select_categories):
+                  progress_bar, status_text, select_categories,IStatacv):
 
     import streamlit as st
     import os, io, zipfile
@@ -307,6 +307,7 @@ def process_files(validation_errors, all_locations, start_date, end_date, total_
     )
 
 #    st.success("🎉 Reports generated successfully!")
+
 
 
 
