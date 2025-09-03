@@ -273,7 +273,7 @@ def show_validation_issues():
         progress_bar = st.progress(0)
         status_text = st.empty()
         with st.spinner("Processing files..."):
-            process_files([], all_locations, start_date, end_date, len(all_locations), progress_bar, status_text, select_categories)
+            process_files([], all_locations, start_date, end_date, len(all_locations), progress_bar, status_text, select_categories,IStatacv)
             time.sleep(0.5)
         st.session_state.processing_complete = True
         st.session_state.show_reports = True
@@ -375,7 +375,7 @@ if st.session_state.get("user_id") or not st.session_state.get("user_id"):
                 progress_bar = st.progress(0)
                 status_text = st.empty()
                 with st.spinner("Processing files..."):
-                    process_files([], all_locations, start_date, end_date, len(all_locations), progress_bar, status_text, select_categories)
+                    process_files([], all_locations, start_date, end_date, len(all_locations), progress_bar, status_text, select_categories,IStatacv)
                     time.sleep(0.5)
                 st.session_state.processing_complete = True
                 st.session_state.show_reports = True
@@ -387,5 +387,6 @@ if st.session_state.get("user_id") or not st.session_state.get("user_id"):
     if st.session_state.uploaded_file is not None:
         if st.session_state.missing_files or st.session_state.period_validation_errors:
             show_validation_issues()
+
 
 
