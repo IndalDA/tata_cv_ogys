@@ -245,7 +245,7 @@ def process_files(validation_errors, all_locations, start_date, end_date, total_
             Intransit_Df['Recd Qty']=pd.to_numeric(Intransit_Df['Recd Qty'].astype(str).str.replace(',', '', regex=False),errors='coerce')
             Int_Df = Loc_master.merge(Intransit_Df,left_on='Code',right_on='Division Name',how='inner')
             Int_Df['In_d'] = (pd.to_datetime(Cur).normalize() - Int_Df['Invoice_Date'].dt.normalize()).dt.days
-            Int_ex = Int_Df[(Int_Df['In_d']<90)&(Int_Df['Recd Qty']>0)][['Brand_x','Dealer Name','Final Location','Order #','Purchase_Order_Date','Part #','Recd Qty',
+            Int_ex = Int_Df[(Int_Df['In_d']>0)&(Int_Df['In_d']<=90)&(Int_Df['Recd Qty']>0)][['Brand_x','Dealer Name','Final Location','Order #','Purchase_Order_Date','Part #','Recd Qty',
                                                                          'In_d','filename']]
             Int_ex['OEMInvoiceNo']=''
             Int_ex['OEMInvoiceDate']=''
@@ -333,6 +333,7 @@ def process_files(validation_errors, all_locations, start_date, end_date, total_
     )
 
 #    st.success("🎉 Reports generated successfully!")
+
 
 
 
