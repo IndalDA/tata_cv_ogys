@@ -182,7 +182,7 @@ def validate_periods(all_locations, start_date, end_date, period_days):
         periods.append((current_date, period_end))
         current_date = period_end + timedelta(days=1)
 
-    for brand, dealer, location, location_path in all_locations:
+    for brand, dealer, location_path in all_locations:
         oem_files = [f for f in os.listdir(location_path) if f.lower().startswith('bo')]
         mrn_files = [f for f in os.listdir(location_path) if f.lower().startswith('intransit')]
 
@@ -199,7 +199,7 @@ def validate_periods(all_locations, start_date, end_date, period_days):
                         if any(period_start <= d.date() <= period_end for d in oem_df['Order Date'].dropna()):
                             oem_has_period[p] = True
                 except Exception as e:
-                    validation_errors.append(f"{location}: Error validating OEM periods - {str(e)}")
+                    validation_errors.append(f"{dealer}: Error validating OEM periods - {str(e)}")
         
         mrn_has_period = {p: False for p in periods}
         if mrn_files: 
@@ -214,7 +214,7 @@ def validate_periods(all_locations, start_date, end_date, period_days):
                         if any(period_start <= d.date() <= period_end for d in mrn_df['Purchase_Order_Date'].dropna()):
                             mrn_has_period[p] = True
                 except Exception as e:
-                    validation_errors.append(f"{location}: Error validating Purchase Order Date periods - {str(e)}")
+                    validation_errors.append(f"{dealer}: Error validating Purchase Order Date periods - {str(e)}")
 
         for period_start, period_end in periods:
             missing_in = []
@@ -223,14 +223,14 @@ def validate_periods(all_locations, start_date, end_date, period_days):
 
             if missing_in:
                 missing_periods_log.append({
-                    'Brand': brand, 'Dealer': dealer, 'Location': location,
+                    'Brand': brand, 'Dealer': dealer,
                     'Period': f"{period_start} to {period_end}",
                     'Missing In': ", ".join(missing_in)
                 })
-                validation_errors.append(f"{location}: {' and '.join(missing_in)} missing for period {period_start} to {period_end}")
+                validation_errors.append(f"{dealer}: {' and '.join(missing_in)} missing for period {period_start} to {period_end}")
 
     validation_log_df = pd.DataFrame(missing_periods_log) if missing_periods_log else pd.DataFrame(
-        columns=['Brand', 'Dealer', 'Location', 'Period', 'Missing In']
+        columns=['Brand', 'Dealer','Period', 'Missing In']
     )
 
     return validation_errors if validation_errors else [], validation_log_df if not validation_log_df.empty else pd.DataFrame()
@@ -337,15 +337,12 @@ if st.session_state.get("user_id") or not st.session_state.get("user_id"):
                 brand_path = os.path.join(extract_path, brand)
                 if not os.path.isdir(brand_path): continue
                 for dealer in os.listdir(brand_path):
-                    dealer_path = os.path.join(brand_path, dealer)
-                    if not os.path.isdir(dealer_path): continue
-                    for location in os.listdir(dealer_path):
-                        location_path = os.path.join(dealer_path, location)
-                        if os.path.isdir(location_path):
-                            all_locations.append((brand, dealer, location, location_path))
+                    location_path = os.path.join(brand_path, dealer)
+                    if os.path.isdir(location_path):
+                        all_locations.append((brand, dealer, location_path))
 
             missing_files = []
-            for brand, dealer, location, location_path in all_locations:
+            for brand, dealer, location_path in all_locations:
                 required = {'stock': False, 'intransit': False, 'Bo': False}
                 for file in os.listdir(location_path):
                     f = file.lower()
@@ -355,7 +352,7 @@ if st.session_state.get("user_id") or not st.session_state.get("user_id"):
 
                 for k, v in required.items():
                     if not v:
-                        missing_files.append(f"{brand}/{dealer}/{location} - Missing: {k}")
+                        missing_files.append(f"{brand}/{dealer} - Missing: {k}")
 
             period_days = PERIOD_TYPES.get(st.session_state.period_type, 1)
         

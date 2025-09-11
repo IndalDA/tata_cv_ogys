@@ -148,9 +148,9 @@ def process_files(validation_errors, all_locations, start_date, end_date, total_
 
 
     # ---------- per location ----------
-    for i, (brand, dealer, location, location_path) in enumerate(all_locations):
+    for i, (brand, dealer, location_path) in enumerate(all_locations):
         progress_bar.progress((i + 1) / max(total_locations, 1))
-        status_text.text(f"Generating reports for {location} ({i+1}/{total_locations})...")
+        status_text.text(f"Generating reports for {dealer} ({i+1}/{total_locations})...")
 
         # reset per-location collectors
         #mrn_list, stock_list, po_list = [], [], []
@@ -169,34 +169,34 @@ def process_files(validation_errors, all_locations, start_date, end_date, total_
                 df = read_file(file_path)
                 df['Brand']=brand
                 df['Dealer']=dealer
-                df['Location']=location
+                #df['Location']=location
                 df['filename']=file
-                df = df[['Brand','Dealer','Location','filename','Part #','Qty','Inventory Location','Status','Availability']]
+                df = df[['Brand','Dealer','filename','Part #','Qty','Inventory Location','Status','Availability']]
                 stock.append(df)
             elif file.lower().startswith("bo"):
                 df = read_file(file_path)
                 df['Brand']=brand
                 df['Dealer']=dealer
-                df['Location']=location
+                #df['Location']=location
                 df['filename']=file
-                df = df[['Brand','Dealer','Location','filename','Division','Order Number','Order Date','Part No','Days Pending','Pending Qty.']]
+                df = df[['Brand','Dealer','filename','Division','Order Number','Order Date','Part No','Days Pending','Pending Qty.']]
                 bo.append(df)
             elif file.lower().startswith("intransit"):
                 df = read_file(file_path)
                 df['Brand']=brand
                 df['Dealer']=dealer
-                df['Location']=location
+               # df['Location']=location
                 df['filename']=file
-                df = df[['Brand','Dealer','Location','filename','Order #','Part #','Recd Qty','Division Name','Status','Invoice_Date','Purchase_Order_Date']]
+                df = df[['Brand','Dealer','filename','Order #','Part #','Recd Qty','Division Name','Status','Invoice_Date','Purchase_Order_Date']]
                 Intransit.append(df)
 
             elif file.lower().startswith("cbo"):
                 df = read_file(file_path)
                 df['Brand']=brand
                 df['Dealer']=dealer
-                df['Location']=location
+                #df['Location']=location
                 df['filename']=file
-                df = df[['Brand','Dealer','Location','filename','Account code','Account Contact No.','Order Number',
+                df = df[['Brand','Dealer','filename','Account code','Account Contact No.','Order Number',
                             'Order Date','Spares Order Type','Part No','Pending Qty','Division']]
                 CBO.append(df)
 
@@ -211,7 +211,7 @@ def process_files(validation_errors, all_locations, start_date, end_date, total_
             stk_fn['Partnumber']=stk_fn['Partnumber'].astype(str)
            
             # **Generate report per dealer**
-            stk_filename = f"stock_{brand}_{dealer}_{location}.xlsx"
+            stk_filename = f"stock_{brand}_{dealer}.xlsx"
             _store_xlsx(stk_filename, stk_fn)
 
         if bo:
@@ -257,7 +257,7 @@ def process_files(validation_errors, all_locations, start_date, end_date, total_
             Int_con = Int_up.copy()
             OEMinvoice=pd.concat([bo_con,Int_con],ignore_index=True)
             #OEMinvoice.to_excel(f'OEMinvoice_{brand}_{dealer}_{location}2.xlsx',index=False)
-            po_filename = f"OEM_{brand}_{dealer}_{location}.xlsx"
+            po_filename = f"OEM_{brand}_{dealer}.xlsx"
             _store_xlsx(po_filename, OEMinvoice)
         if CBO:
           df=pd.concat(CBO,ignore_index=True) 
@@ -276,7 +276,7 @@ def process_files(validation_errors, all_locations, start_date, end_date, total_
                       'Order Date':'OrderDate','Part No':'Partnumber','Pending Qty':'Qty'
                       },inplace=True)
           cbo_f['Partnumber']=cbo_f['Partnumber'].astype(str)
-          cbo_filename = f"CBO_{brand}_{dealer}_{location}.xlsx"
+          cbo_filename = f"CBO_{brand}_{dealer}.xlsx"
           _store_xlsx(cbo_filename, cbo_f)
         Brand_name =brand            
     if validation_errors:
