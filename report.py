@@ -196,8 +196,14 @@ def process_files(validation_errors, all_locations, start_date, end_date, total_
                 df['Dealer']=dealer
                 #df['Location']=location
                 df['filename']=file
-                df = df[['Brand','Dealer','filename','Account code','Account Contact No.','Order Number',
+                try:
+                  df = df[['Brand','Dealer','filename',' Account Code','Account Contact No.','Order Number',
                             'Order Date','Spares Order Type','Part No','Pending Qty','Division']]
+                except:
+                  df = df[['Brand','Dealer','filename','Account code','Account Contact No.','Order Number',
+                            'Order Date','Spares Order Type','Part No','Pending Qty','Division']]
+                 
+
                 CBO.append(df)
 
         # ---------- create & store reports FOR THIS LOCATION ----------
@@ -269,12 +275,21 @@ def process_files(validation_errors, all_locations, start_date, end_date, total_
             cbo =df.copy()
           cbo_df = Loc_master.merge(cbo,left_on='Code',right_on='Division',how='inner')
           #st.write("Columns in cbo_df before selecting:", cbo_df.columns.tolist())
-          cbo_f = cbo_df[['Brand_x','Dealer Name','Final Location','Account Contact No.','Account code',
-                          'Order Number','Order Date', 'Part No','Pending Qty']]
-          cbo_f.rename(columns={'Brand_x':'Brand','Dealer Name':'Dealer','Final Location':'Location',
-                      'Account Contact No.':'PartyName','Account code':'PartyCode','Order Number':'OrderNumber',
-                      'Order Date':'OrderDate','Part No':'Partnumber','Pending Qty':'Qty'
-                      },inplace=True)
+          try:
+            cbo_f = cbo_df[['Brand_x','Dealer Name','Final Location','Account Contact No.','Account code',
+                            'Order Number','Order Date', 'Part No','Pending Qty']]
+            cbo_f.rename(columns={'Brand_x':'Brand','Dealer Name':'Dealer','Final Location':'Location',
+                        'Account Contact No.':'PartyName','Account code':'PartyCode','Order Number':'OrderNumber',
+                        'Order Date':'OrderDate','Part No':'Partnumber','Pending Qty':'Qty'
+                        },inplace=True)
+          except:
+            cbo_f = cbo_df[['Brand_x','Dealer Name','Final Location','Account Contact No.','Account Code',
+                            'Order Number','Order Date', 'Part No','Pending Qty']]
+            cbo_f.rename(columns={'Brand_x':'Brand','Dealer Name':'Dealer','Final Location':'Location',
+                        'Account Contact No.':'PartyName','Account Code':'PartyCode','Order Number':'OrderNumber',
+                        'Order Date':'OrderDate','Part No':'Partnumber','Pending Qty':'Qty'
+                        },inplace=True)
+            
           cbo_f['Partnumber']=cbo_f['Partnumber'].astype(str)
           cbo_filename = f"CBO_{brand}_{dealer}.xlsx"
           _store_xlsx(cbo_filename, cbo_f)
@@ -333,6 +348,7 @@ def process_files(validation_errors, all_locations, start_date, end_date, total_
     )
 
 #    st.success("🎉 Reports generated successfully!")
+
 
 
 
