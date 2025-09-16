@@ -64,110 +64,127 @@ PERIOD_TYPES = { "Day": 1, "Week": 7, "Month": 30, "Quarter": 180, "Year": 365 }
 # ---------------- File Readers ---------------- #
 
 def read_file(file_path):
-    if not os.path.isfile(file_path):
-        print(f"[ERROR] File not found: {file_path}")
-        return None
-
-    file_path_lower = file_path.lower()
-
+    file_paths= os.path.basename(file_path)
+    # Try to extract filename safely
+    if "extracted_files/" in file_path:
+   
+        file_name = file_paths.split("extracted_files/", 1)[1]
+    else:
+        file_name = os.path.basename(file_path)
     try:
-        if file_path_lower.endswith('.xlsx'):
-            return pd.read_excel(file_path, engine='openpyxl')
-
-        elif file_path_lower.endswith('.xls'):
-            try:
-                return pd.read_excel(file_path, engine='xlrd')
-            except:
-                try:
-                    return pd.read_excel(file_path, engine='openpyxl')
-                except:
-                    print(f"[WARN] Failed .xls read, trying as CSV: {file_path}")
-                    return try_read_as_csv(file_path)
-
-        elif file_path_lower.endswith('.xlsb'):
-            try:
-                return pd.read_excel(file_path, engine='pyxlsb')
-            except Exception as e:
-                print(f"[WARN] Failed .xlsb read: {e}, trying as CSV.")
-                return try_read_as_csv(file_path)
-
-        elif file_path_lower.endswith(('.csv', '.tsv', '.txt')): 
-            return try_read_as_csv(file_path)
-
-        elif file_path_lower.endswith(('.html', '.htm')):
-            return try_read_as_html(file_path)
-
-        elif file_path_lower.endswith('.json'):
-            return try_read_as_json(file_path)
-
-        elif file_path_lower.endswith('.parquet'):
-            return try_read_as_parquet(file_path)
-
-        elif file_path_lower.endswith('.feather'):
-            return try_read_as_feather(file_path)
-
-        elif file_path_lower.endswith(('.pkl', '.pickle')):
-            return try_read_as_pickle(file_path)
-
+        if file_path.lower().endswith('.xlsx'):
+            return pd.read_excel(file_path)
         else:
-            print(f"[ERROR] Unsupported file type: {file_path}")
-            return None
-
+            return st.warning(f"File not Excel Workbook and .xlsx extention For : {file_name}")
     except Exception as e:
-        print(f"[ERROR] General read failure: {e}")
+        print(f" read failed for {file_path}: {e}")
         return None
 
-# ---------- SUPPORT FUNCTIONS ----------
+# def read_file(file_path):
+#     if not os.path.isfile(file_path):
+#         print(f"[ERROR] File not found: {file_path}")
+#         return None
 
-def try_read_as_csv(file_path):
-    try:
-        return pd.read_csv(file_path, encoding='utf-8', sep=None, engine='python', on_bad_lines='skip')
-    except UnicodeDecodeError:
-        try:
-            return pd.read_csv(file_path, encoding='windows-1252', sep=None, engine='python', on_bad_lines='skip')
-        except Exception as e:
-            print(f"[ERROR] CSV read failed with both encodings: {e}")
-            return None
+#     file_path_lower = file_path.lower()
 
-def try_read_as_html(file_path):
-    try:
-        tables = pd.read_html(file_path)
-        if tables:
-            return tables[0]  # return first table
-        else:
-            print(f"[WARN] No tables found in HTML: {file_path}")
-            return None
-    except Exception as e:
-        print(f"[ERROR] HTML read failed: {e}")
-        return None
+#     try:
+#         if file_path_lower.endswith('.xlsx'):
+#             return pd.read_excel(file_path, engine='openpyxl')
 
-def try_read_as_json(file_path):
-    try:
-        return pd.read_json(file_path, lines=True)
-    except Exception as e:
-        print(f"[ERROR] JSON read failed: {e}")
-        return None
+#         elif file_path_lower.endswith('.xls'):
+#             try:
+#                 return pd.read_excel(file_path, engine='xlrd')
+#             except:
+#                 try:
+#                     return pd.read_excel(file_path, engine='openpyxl')
+#                 except:
+#                     print(f"[WARN] Failed .xls read, trying as CSV: {file_path}")
+#                     return try_read_as_csv(file_path)
 
-def try_read_as_parquet(file_path):
-    try:
-        return pd.read_parquet(file_path)
-    except Exception as e:
-        print(f"[ERROR] Parquet read failed: {e}")
-        return None
+#         elif file_path_lower.endswith('.xlsb'):
+#             try:
+#                 return pd.read_excel(file_path, engine='pyxlsb')
+#             except Exception as e:
+#                 print(f"[WARN] Failed .xlsb read: {e}, trying as CSV.")
+#                 return try_read_as_csv(file_path)
 
-def try_read_as_feather(file_path):
-    try:
-        return pd.read_feather(file_path)
-    except Exception as e:
-        print(f"[ERROR] Feather read failed: {e}")
-        return None
+#         elif file_path_lower.endswith(('.csv', '.tsv', '.txt')): 
+#             return try_read_as_csv(file_path)
 
-def try_read_as_pickle(file_path):
-    try:
-        return pd.read_pickle(file_path)
-    except Exception as e:
-        print(f"[ERROR] Pickle read failed: {e}")
-        return None
+#         elif file_path_lower.endswith(('.html', '.htm')):
+#             return try_read_as_html(file_path)
+
+#         elif file_path_lower.endswith('.json'):
+#             return try_read_as_json(file_path)
+
+#         elif file_path_lower.endswith('.parquet'):
+#             return try_read_as_parquet(file_path)
+
+#         elif file_path_lower.endswith('.feather'):
+#             return try_read_as_feather(file_path)
+
+#         elif file_path_lower.endswith(('.pkl', '.pickle')):
+#             return try_read_as_pickle(file_path)
+
+#         else:
+#             print(f"[ERROR] Unsupported file type: {file_path}")
+#             return None
+
+#     except Exception as e:
+#         print(f"[ERROR] General read failure: {e}")
+#         return None
+
+# # ---------- SUPPORT FUNCTIONS ----------
+
+# def try_read_as_csv(file_path):
+#     try:
+#         return pd.read_csv(file_path, encoding='utf-8', sep=None, engine='python', on_bad_lines='skip')
+#     except UnicodeDecodeError:
+#         try:
+#             return pd.read_csv(file_path, encoding='windows-1252', sep=None, engine='python', on_bad_lines='skip')
+#         except Exception as e:
+#             print(f"[ERROR] CSV read failed with both encodings: {e}")
+#             return None
+
+# def try_read_as_html(file_path):
+#     try:
+#         tables = pd.read_html(file_path)
+#         if tables:
+#             return tables[0]  # return first table
+#         else:
+#             print(f"[WARN] No tables found in HTML: {file_path}")
+#             return None
+#     except Exception as e:
+#         print(f"[ERROR] HTML read failed: {e}")
+#         return None
+
+# def try_read_as_json(file_path):
+#     try:
+#         return pd.read_json(file_path, lines=True)
+#     except Exception as e:
+#         print(f"[ERROR] JSON read failed: {e}")
+#         return None
+
+# def try_read_as_parquet(file_path):
+#     try:
+#         return pd.read_parquet(file_path)
+#     except Exception as e:
+#         print(f"[ERROR] Parquet read failed: {e}")
+#         return None
+
+# def try_read_as_feather(file_path):
+#     try:
+#         return pd.read_feather(file_path)
+#     except Exception as e:
+#         print(f"[ERROR] Feather read failed: {e}")
+#         return None
+
+# def try_read_as_pickle(file_path):
+#     try:
+#         return pd.read_pickle(file_path)
+#     except Exception as e:
+#         print(f"[ERROR] Pickle read failed: {e}")
+#         return None
 
 # ---------------- Validation Functions (periods) ---------------- #
 
@@ -384,6 +401,7 @@ if st.session_state.get("user_id") or not st.session_state.get("user_id"):
     if st.session_state.uploaded_file is not None:
         if st.session_state.missing_files or st.session_state.period_validation_errors:
             show_validation_issues()
+
 
 
 
