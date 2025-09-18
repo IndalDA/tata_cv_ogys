@@ -217,7 +217,7 @@ def process_files(validation_errors, all_locations, start_date, end_date, total_
                 #df['Location']=location
                 df['filename']=file
                 try:
-                  df = df[['Brand','Dealer','filename',' Account Code','Account Contact No.','Order Number',
+                  df = df[['Brand','Dealer','filename','Account Code','Account Contact No.','Order Number',
                             'Order Date','Spares Order Type','Part No','Pending Qty','Division','Order Reason','Order Item Status']]
                 except:
                   df = df[['Brand','Dealer','filename','Account code','Account Contact No.','Order Number',
@@ -368,6 +368,7 @@ def process_files(validation_errors, all_locations, start_date, end_date, total_
     )
 
 #    st.success("🎉 Reports generated successfully!")
+
 
 
 
