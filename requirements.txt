@@ -5,3 +5,6 @@ xlrd
 lxml
 sqlalchemy
 bcrypt
+pyodbc
+python-dotenv
+requests
